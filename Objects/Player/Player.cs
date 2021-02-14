@@ -3,8 +3,8 @@ using System;
 
 public class Player : KinematicBody2D
 {
-	private const int MaxSpeed = 25;
-	private const int Acceleration = 2500;
+	private const int MaxSpeed = 24;
+	private const int SpeedMultiplier = 1000;
 	private Vector2 velocity;
 	
 	// Determine Axis vector, contains direction based on user input
@@ -15,17 +15,11 @@ public class Player : KinematicBody2D
 		return axis.Normalized();
 	}
 	
-	// Apply friction on moving entity
-	public void ApplyFriction(float friction) {
-		if (velocity.Length() > friction) {
-			velocity -= velocity.Normalized() * friction;
-		} else velocity = Vector2.Zero;
-	}
-	
 	// Apply updated movement to velocity
-	public void ApplyMovement(Vector2 movement) {
-		velocity += movement;
-		velocity.Clamped(MaxSpeed);
+	public void ApplyMovement(float movement) {
+		Vector2 axis = GetAxis();
+		velocity = axis * movement;
+		velocity = MoveAndSlide(velocity.Clamped(MaxSpeed * SpeedMultiplier));
 	}
 	
 	// Called when the node enters the scene tree for the first time.
@@ -36,10 +30,6 @@ public class Player : KinematicBody2D
 	}
 	// Called at the beginning of each physics step
 	public override void _PhysicsProcess(float delta) {
-		Vector2 axis = GetAxis();
-		if (axis != Vector2.Zero) {
-			ApplyMovement(axis * Acceleration * delta);
-		} else ApplyFriction(Acceleration * delta);
-		velocity = MoveAndSlide(velocity);
+		ApplyMovement(MaxSpeed * delta * SpeedMultiplier);
 	}
 }
