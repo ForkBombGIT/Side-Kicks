@@ -6,7 +6,8 @@
 [node name="Level_0" type="Node"]
 
 [node name="Wall" parent="." instance=ExtResource( 2 )]
-position = Vector2( 31.4838, 192 )
+position = Vector2( 10, 10 )
 
 [node name="Player" parent="." instance=ExtResource( 3 )]
 position = Vector2( 136.361, 95.4525 )
+z_index = 1
