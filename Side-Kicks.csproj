@@ -53,6 +53,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Objects\BowlingBall\BowlingBall.cs" />
     <Compile Include="Objects\Player\Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
