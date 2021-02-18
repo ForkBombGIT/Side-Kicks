@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="CircleShape2D" id=1]
+radius = 32.0624
+
+[node name="Wall" type="StaticBody2D"]
+collision_layer = 4
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 0, 1 )
+scale = Vector2( 0.5, 0.5 )
+shape = SubResource( 1 )

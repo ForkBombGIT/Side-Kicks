@@ -12,27 +12,27 @@ region = Rect2( 0, 24, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=3]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 96, 18, 24 )
+region = Rect2( 0, 168, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=4]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 144, 18, 24 )
+region = Rect2( 0, 0, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=5]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 72, 18, 24 )
+region = Rect2( 0, 96, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=6]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 120, 18, 24 )
+region = Rect2( 0, 144, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=7]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 168, 18, 24 )
+region = Rect2( 0, 72, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=8]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 0, 18, 24 )
+region = Rect2( 0, 120, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=9]
 atlas = ExtResource( 1 )
@@ -47,32 +47,32 @@ animations = [ {
 }, {
 "frames": [ SubResource( 3 ) ],
 "loop": true,
-"name": "idle_b",
+"name": "idle_fl",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 4 ) ],
 "loop": true,
-"name": "idle_l",
+"name": "idle_f",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 5 ) ],
 "loop": true,
-"name": "idle_br",
+"name": "idle_b",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 6 ) ],
 "loop": true,
-"name": "idle_bl",
+"name": "idle_l",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 7 ) ],
 "loop": true,
-"name": "idle_fl",
+"name": "idle_br",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 8 ) ],
 "loop": true,
-"name": "idle_f",
+"name": "idle_bl",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 9 ) ],
