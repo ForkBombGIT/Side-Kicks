@@ -3,81 +3,81 @@
 [ext_resource path="res://Assets/Sprites/char_rubus_(18x24).png" type="Texture" id=1]
 [ext_resource path="res://Objects/Player/Player.gd" type="Script" id=2]
 
-[sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 19.3253, 24.7929 )
+[sub_resource type="CircleShape2D" id=11]
+radius = 16.9777
 
 [sub_resource type="AtlasTexture" id=2]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 24, 18, 24 )
+region = Rect2( 0, 48, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=3]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 168, 18, 24 )
+region = Rect2( 0, 144, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=4]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 0, 18, 24 )
+region = Rect2( 0, 96, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=5]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 96, 18, 24 )
+region = Rect2( 0, 120, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=6]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 144, 18, 24 )
+region = Rect2( 0, 72, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=7]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 72, 18, 24 )
+region = Rect2( 0, 0, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=8]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 120, 18, 24 )
+region = Rect2( 0, 168, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=9]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 48, 18, 24 )
+region = Rect2( 0, 24, 18, 24 )
 
 [sub_resource type="SpriteFrames" id=10]
 animations = [ {
 "frames": [ SubResource( 2 ) ],
 "loop": true,
-"name": "idle_fr",
+"name": "idle_r",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 3 ) ],
 "loop": true,
-"name": "idle_fl",
+"name": "idle_l",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 4 ) ],
 "loop": true,
-"name": "idle_f",
+"name": "idle_b",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 5 ) ],
 "loop": true,
-"name": "idle_b",
+"name": "idle_bl",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 6 ) ],
 "loop": true,
-"name": "idle_l",
+"name": "idle_br",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 7 ) ],
 "loop": true,
-"name": "idle_br",
+"name": "idle_f",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 8 ) ],
 "loop": true,
-"name": "idle_bl",
+"name": "idle_fl",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 9 ) ],
 "loop": true,
-"name": "idle_r",
+"name": "idle_fr",
 "speed": 5.0
 } ]
 
@@ -86,12 +86,10 @@ collision_mask = 5
 script = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 1 )
+shape = SubResource( 11 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 scale = Vector2( 2, 2 )
+z_index = 1
 frames = SubResource( 10 )
 animation = "idle_br"
-
-[node name="Hand" type="Position2D" parent="."]
-position = Vector2( 16.4269, 15.4003 )
