@@ -2,6 +2,9 @@ extends KinematicBody2D
 
 const MAX_BALL_DISTANCE = 2000;
 const LIFE_TIME = 2;
+const CHARGE_STAGE_1 = 45 / 60.0;
+const CHARGE_STAGE_2 = 90 / 60.0;
+const BASE_SPEED = 500;
 onready var lifeTimer = get_node("LifeTimer");
 var origin;
 var direction;
@@ -11,13 +14,14 @@ var speed;
 func set_speed_from_power(p):
 	speed = power_to_speed(p);
 
+# Determine speed of bowling ball based on power
 func power_to_speed(p):
-	if (p > 15):
-		return 1000;
-	elif (p > 10):
-		return 750;
+	if (p > CHARGE_STAGE_2):
+		return BASE_SPEED * 2;
+	elif (p > CHARGE_STAGE_1):
+		return BASE_SPEED * 1.5;
 	else:
-		return 500; 
+		return BASE_SPEED; 
 
 # Update direction of bowling ball
 func set_direction(d):

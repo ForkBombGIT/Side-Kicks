@@ -2,18 +2,17 @@ extends KinematicBody2D
 
 const SPEED = 200;
 const SLIDE_SPEED = SPEED * 2;
-const SHORT_SLIDE_DISTANCE = 30;
-const LONG_SLIDE_DISTANCE = 60;
-const LONG_SLIDE_LENGTH = 10;
-const BOWL_DELAY = 12;
-const POST_BOWL_DELAY = 10;
+const SHORT_SLIDE_DISTANCE = 60;
+const LONG_SLIDE_DISTANCE = 90;
+const LONG_SLIDE_LENGTH = 10 / 60.0;
+const BOWL_DELAY = 12 / 60.0;
+const POST_BOWL_DELAY = 10 / 60.0;
 onready var bowlingBallScene = load("res://Objects/BowlingBall/BowlingBall.tscn");
 onready var sprite = get_node("AnimatedSprite");
 var id;
 var velocity;
 var direction;
-var bowl;
-var bowling;
+var bowlState;
 var bowlPower;
 var bowlDelay;
 var sliding;
@@ -65,34 +64,46 @@ func update_direction(v):
 	elif (dir.dot(Vector2.DOWN) > 0.99):
 		direction = {"name": "f", "vector": dir};
  
+# Update sprite based on direction
 func update_sprite():
 	var dir = get_axis();
 	if ((dir != Vector2.ZERO) and 
 	   !(sliding)):
 		update_direction(dir);
 	sprite.play("idle_%s" % direction["name"]);
-	
+
+# Slide
 func update_sliding(delta):
+	# Update velocity based on direction of slide
 	update_velocity(SLIDE_SPEED, direction["vector"], delta);
+	# Set maximum distance based on slideLength
 	var distance = SHORT_SLIDE_DISTANCE;
 	if (slideLength > LONG_SLIDE_LENGTH):
 		distance = LONG_SLIDE_DISTANCE;
+	# Stop sliding once maximum distance is reached
 	if (slideStartPosition.distance_to(position) > distance):
 		sliding = false;
 		slideLength = 0;
-		
+
+# Bowl ball
 func bowl_bowling_ball():
 	if !(is_instance_valid(bowlingBall)):
+		# bowlState set to 3, represents ball has been rowled
+		bowlState = 3;
+		# Instatiate BowlingBall
 		bowlingBall = bowlingBallScene.instance();
 		bowlingBall.position = position;
 		bowlingBall.set_speed_from_power(bowlPower);
+		# Reset bowlPower
 		bowlPower = 0;
+		# Set direction of bowlingBall
 		var dir = get_axis();
 		if (dir == Vector2.ZERO):
 			dir = direction["vector"]
 		bowlingBall.set_direction(dir);
 		get_parent().add_child(bowlingBall);
 
+# Cancels or starts sliding, and sets start position
 func slide():
 	sliding = !sliding;
 	if (sliding):
@@ -109,48 +120,49 @@ func _ready():
 	bowlPower = 0;
 	# Delay before rolling ball
 	bowlDelay = 0;
+	bowlState = 0;
 	# Initialize direction dictionary
 	direction = {"name": "f", "vector": Vector2(Vector2.DOWN)};
 	
 # Called at the beginning of each physics step
 func _physics_process(delta):
-	# User input
-	# Bowling
-	
-	if (Input.is_action_just_pressed("ui_ok_%d" % id)):
-		bowling = !bowling;
+	# Bowling action
 	if !(is_instance_valid(bowlingBall)) :
 		if ((Input.is_action_pressed("ui_ok_p%d" % id))):
-			bowlPower += 1;
-			bowling = true;
+			bowlPower += delta;
+			bowlState = 1;
 		if ((Input.is_action_just_released("ui_ok_p%d" % id))):
-			bowl = true;
-	# Sliding
+			bowlState = 2;
+	# Sliding action
 	if ((Input.is_action_pressed("ui_back_p%d" % id))):
-		slideLength += 1;
+		slideLength += delta;
 	if ((Input.is_action_just_released("ui_back_p%d" % id))):
 		slide();
-		
+	
 	# Ball Rolling after delay
-	if (bowl):
-		bowlDelay += 1;
-		if (bowlPower > BOWL_DELAY):
+	if (bowlState >= 2):
+		bowlDelay += delta;
+		# Skip BOWL_DELAY if bowl was charged
+		if (bowlPower >= BOWL_DELAY):
 			bowlDelay = BOWL_DELAY;
-		if (bowlDelay == BOWL_DELAY):
-			bowl_bowling_ball();
-		elif (bowlDelay > BOWL_DELAY + POST_BOWL_DELAY):
-			bowling = false;
-			bowl = false;
+		# Bowl after BOWL_DELAY
+		if ((bowlDelay >= BOWL_DELAY) and 
+			(bowlState != 3)):
+				bowl_bowling_ball();
+		# Wait for POST_BOWL_DELAY to continue movement
+		elif (bowlDelay > (BOWL_DELAY + POST_BOWL_DELAY)):
+			bowlState = 0;
 			bowlPower = 0;
 	else: 
 		bowlDelay = 0;
-	
-	# Movement
+		
+	# Update Movement
 	update_direction(velocity);
 	update_sprite();
 	if (sliding):
 		update_sliding(delta)
 	else:
-		if !(bowling):
+		# Moving is only allowed when not bowling
+		if (bowlState == 0):
 			update_velocity(SPEED, get_axis(), delta);
 
