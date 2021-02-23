@@ -1,15 +1,22 @@
 extends KinematicBody2D
 
-const SPEED = 200;
-const SLIDE_SPEED = SPEED * 2;
-const SHORT_SLIDE_DISTANCE = 60;
-const LONG_SLIDE_DISTANCE = 90;
+# Character specific consts (Rubus)
+# To-do: Create subclasses of Player
+const SPEED = 180;
+const SLIDE_SPEED = 420
+const SHORT_SLIDE_DISTANCE = 50;
+const LONG_SLIDE_DISTANCE = 100;
 const LONG_SLIDE_LENGTH = 10 / 60.0;
+const THROW_SPEEDS = [480,600,960,1440];
+# General player constants
 const BOWL_DELAY = 12 / 60.0;
 const POST_BOWL_DELAY = 10 / 60.0;
+# Player identification variables
 onready var bowlingBallScene = load("res://Objects/BowlingBall/BowlingBall.tscn");
 onready var sprite = get_node("AnimatedSprite");
 var id;
+# Player state variables
+# To-do create state machine
 var velocity;
 var direction;
 var bowlState;
@@ -74,12 +81,12 @@ func update_sprite():
 
 # Slide
 func update_sliding(delta):
-	# Update velocity based on direction of slide
-	update_velocity(SLIDE_SPEED, direction["vector"], delta);
-	# Set maximum distance based on slideLength
+	# Set maximum distance and velocity based on slideLength
 	var distance = SHORT_SLIDE_DISTANCE;
 	if (slideLength > LONG_SLIDE_LENGTH):
 		distance = LONG_SLIDE_DISTANCE;
+	# Update velocity based on direction of slide
+	update_velocity(SLIDE_SPEED, direction["vector"], delta);
 	# Stop sliding once maximum distance is reached
 	if (slideStartPosition.distance_to(position) > distance):
 		sliding = false;
@@ -93,7 +100,7 @@ func bowl_bowling_ball():
 		# Instatiate BowlingBall
 		bowlingBall = bowlingBallScene.instance();
 		bowlingBall.position = position;
-		bowlingBall.set_speed_from_power(bowlPower);
+		bowlingBall.set_speed_from_power(bowlPower,THROW_SPEEDS);
 		# Reset bowlPower
 		bowlPower = 0;
 		# Set direction of bowlingBall
@@ -165,4 +172,3 @@ func _physics_process(delta):
 		# Moving is only allowed when not bowling
 		if (bowlState == 0):
 			update_velocity(SPEED, get_axis(), delta);
-

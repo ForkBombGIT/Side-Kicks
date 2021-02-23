@@ -1,27 +1,26 @@
 extends KinematicBody2D
 
-const MAX_BALL_DISTANCE = 2000;
+# How long the ball will exist for, in seconds
 const LIFE_TIME = 2;
-const CHARGE_STAGE_1 = 45 / 60.0;
-const CHARGE_STAGE_2 = 90 / 60.0;
-const BASE_SPEED = 500;
+# Length of charge states, in seconds
+const CHARGE_STAGES = [30,60,90];
+# Timer controling life of ball
 onready var lifeTimer = get_node("LifeTimer");
+# Ball state variables
 var origin;
 var direction;
 var velocity;
 var speed;
 
-func set_speed_from_power(p):
-	speed = power_to_speed(p);
-
 # Determine speed of bowling ball based on power
-func power_to_speed(p):
-	if (p > CHARGE_STAGE_2):
-		return BASE_SPEED * 2;
-	elif (p > CHARGE_STAGE_1):
-		return BASE_SPEED * 1.5;
-	else:
-		return BASE_SPEED; 
+func set_speed_from_power(p,speeds):
+	speed = -1;
+	for i in range(CHARGE_STAGES.size() - 1,0,-1):
+		if (p > CHARGE_STAGES[i] / 60.0):
+			speed = speeds[i + 1];
+			break;
+	if (speed == -1):
+		speed = speeds[0]		
 
 # Update direction of bowling ball
 func set_direction(d):
@@ -41,10 +40,7 @@ func _process(delta):
 	if collision:
 		var lostVelocity = collision.remainder.bounce(collision.normal);
 		velocity = velocity.bounce(collision.normal);
-		move_and_collide(lostVelocity); 
-	# Destroy Bowling Ball if too far from creation coordinate
-	if (position.distance_to(origin) > MAX_BALL_DISTANCE):
-		queue_free();
+		move_and_collide(lostVelocity);
 		
 func _on_lifetimer_timeout():
 	queue_free();
