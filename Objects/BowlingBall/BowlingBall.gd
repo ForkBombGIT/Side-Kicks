@@ -36,11 +36,15 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	var collision = move_and_collide(velocity * delta); 
-	if collision:
+	var velocity_before_collision = velocity;
+	
+	move_and_slide(velocity);
+	var slide_count = get_slide_count();
+	if slide_count:
+		var collision = get_slide_collision(slide_count - 1);
 		var lostVelocity = collision.remainder.bounce(collision.normal);
-		velocity = velocity.bounce(collision.normal);
-		move_and_collide(lostVelocity);
+		velocity = velocity_before_collision.bounce(collision.normal);
+		move_and_slide(lostVelocity);
 		
 func _on_lifetimer_timeout():
 	queue_free();
