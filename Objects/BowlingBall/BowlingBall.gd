@@ -11,6 +11,7 @@ var origin;
 var direction;
 var velocity;
 var speed;
+var chargeState;
 
 # Determine speed of bowling ball based on power
 func set_speed_from_power(p,speeds):
@@ -18,8 +19,10 @@ func set_speed_from_power(p,speeds):
 	for i in range(CHARGE_STAGES.size() - 1,0,-1):
 		if (p > CHARGE_STAGES[i] / 60.0):
 			speed = speeds[i + 1];
+			chargeState = i + 1;
 			break;
 	if (speed == -1):
+		chargeState = 1;
 		speed = speeds[0]		
 
 # Update direction of bowling ball
