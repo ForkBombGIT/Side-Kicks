@@ -8,6 +8,8 @@ const SHORT_SLIDE_DISTANCE = 60;
 const LONG_SLIDE_DISTANCE = 120;
 const LONG_SLIDE_LENGTH = 10 / 60.0;
 const THROW_SPEEDS = [480,600,960,1440];
+# Length of charge states, in seconds
+const CHARGE_STAGES = [30,60,90];
 # General player constants
 const BOWL_DELAY = 12 / 60.0;
 const POST_BOWL_DELAY = 10 / 60.0;
@@ -25,15 +27,20 @@ var direction;
 var bowlState;
 var bowlPower;
 var bowlDelay;
+var bowlChargeState;
 var sliding;
 var slideLength;
 var slideStartPosition;
 var bowlingBall;
 var stunned;
+var throwStyle;
 
 func set_id(id):
 	self.id = id;
 	
+func set_throw_style(id):
+	throwStyle = id;
+
 func set_color(color):
 	self.color = color;
 
@@ -51,6 +58,26 @@ func get_axis():
 	axis.y = int(Input.is_action_pressed("ui_down_p%d" % id)) - int(Input.is_action_pressed("ui_up_p%d" % id));
 	return axis.normalized();
 
+# Determine speed of bowling ball based on power
+func bowling_ball_speed_from_power(p):
+	var bowlingBallSpeed = -1;
+	# Set charge state and speed
+	# charge state must be > 0 for pin to pin collision calculation
+	for i in range(CHARGE_STAGES.size() - 1,-1,-1):
+		if (p > CHARGE_STAGES[i] / 60.0):
+			bowlingBallSpeed = THROW_SPEEDS[i + 1];
+			# i + 2 because i - 1 in loop, and zero index
+			# ex: i = 2, state should equal 4 (maximum stage)
+			# ex: i = 0, state should be equal to 2
+			bowlChargeState = i + 2;
+			break;
+	# Default speed, which is charge state 1
+	if (bowlingBallSpeed == -1):
+		bowlChargeState = 1;
+		bowlingBallSpeed = THROW_SPEEDS[0]	
+		
+	return bowlingBallSpeed;	
+		
 # Apply updated movement to velocity
 func update_velocity(speed,direction,delta):
 	velocity = direction * speed * delta;
@@ -107,24 +134,38 @@ func update_sliding(delta):
 		sliding = false;
 		slideLength = 0;
 
+# Change player color based on charge state
+func update_charge_color():
+	# Update player color based on charge stages
+	if (bowlPower > CHARGE_STAGES[0] / 60.0): 
+		$"AnimatedSprite".modulate = Color(1,1,0);
+	if (bowlPower > CHARGE_STAGES[1] / 60.0): 
+		$"AnimatedSprite".modulate = Color(1,0.5,0);
+	if (bowlPower > CHARGE_STAGES[2] / 60.0): 
+		$"AnimatedSprite".modulate = Color(1,0,0);
+
 # Bowl ball
 func bowl_bowling_ball():
-	if !(is_instance_valid(bowlingBall)):
-		# bowlState set to 2, represents ball has been rolled
-		bowlState = 2;
-		# Instatiate BowlingBall
-		bowlingBall = bowlingBallScene.instance();
-		bowlingBall.position = position;
-		bowlingBall.set_speed_from_power(bowlPower,THROW_SPEEDS);
-		# Reset bowlPower
-		bowlPower = 0;
-		# Set direction of bowlingBall
-		var dir = get_axis();
-		if (dir == Vector2.ZERO):
-			dir = direction["vector"]
-		bowlingBall.set_direction(dir);
-		bowlingBall.set_player_id(id);
-		get_parent().add_child(bowlingBall);
+	# Instatiate BowlingBall
+	bowlingBall = bowlingBallScene.instance();
+	bowlingBall.position = position;
+	bowlingBall.set_speed(bowling_ball_speed_from_power(bowlPower));
+	bowlingBall.set_charge_state(bowlChargeState);
+	# Set direction of bowlingBall
+	var dir = get_axis();
+	if (dir == Vector2.ZERO):
+		dir = direction["vector"]
+	bowlingBall.set_direction(dir);
+	# Set player id, who threw the ball
+	bowlingBall.set_player_id(id);
+	get_parent().add_child(bowlingBall);
+	# bowlState set to 2, represents ball has been rolled
+	bowlState = 2;
+	bowlChargeState = 0;
+	# Rest charge color
+	$"AnimatedSprite".modulate = Color(1,1,1);
+	# Reset bowlPower
+	bowlPower = 0;
 
 # Cancels or starts sliding, and sets start position
 func slide():
@@ -134,7 +175,7 @@ func slide():
 		
 func _on_stuntimer_timeout():
 	stunned = false;
-	
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Initialize Velocity Vector
@@ -142,11 +183,14 @@ func _ready():
 	sliding = false;
 	# How long player holds slide button
 	slideLength = 0;
-	# Initialize Bowl power, how long player holds bowl button
-	bowlPower = 0;
+	# Throwing playstyle
+	throwStyle = 1;
 	# Delay before rolling ball
 	bowlDelay = 0;
 	bowlState = 0;
+	bowlChargeState = 0;
+	# Initialize Bowl power, how long player holds bowl button
+	bowlPower = 0;
 	# Initialize direction dictionary
 	direction = {"name": "f", "vector": Vector2(Vector2.DOWN)};
 	
@@ -157,11 +201,24 @@ func _physics_process(delta):
 	update_sprite();
 	if !(stunned):
 		# Bowling action
-		if !(is_instance_valid(bowlingBall)) :
-			if ((Input.is_action_pressed("ui_ok_p%d" % id))):
-				bowlPower += delta;
-			elif ((Input.is_action_just_released("ui_ok_p%d" % id))):
+		# On single press, throw a ball
+		if ((Input.is_action_just_pressed("ui_ok_p%d" % id)) && (throwStyle)):
+			if !(is_instance_valid(bowlingBall)):
 				bowlState = 1;
+		# Release action, if chargining and no other ball exists, throw a ball
+		if ((Input.is_action_just_released("ui_ok_p%d" % id)) && 
+			  (bowlState == 0)):
+			if !(is_instance_valid(bowlingBall)):
+				bowlState = 1;
+			# If a ball exists, reset bowling power
+			else:
+				$"AnimatedSprite".modulate = Color(1,1,1);
+				bowlPower = 0;
+		# Throw charging
+		if ((Input.is_action_pressed("ui_ok_p%d" % id))):
+			bowlPower += delta;
+			update_charge_color();
+			
 		# Sliding action
 		if ((Input.is_action_just_pressed("ui_back_p%d" % id))):
 			slide();
@@ -170,7 +227,7 @@ func _physics_process(delta):
 		elif ((Input.is_action_just_released("ui_back_p%d" % id))):
 			slideLength = 0;
 		
-		# Ball Rolling after delay
+		# Bowl ball after delay
 		if (bowlState >= 1):
 			bowlDelay += delta;
 			# Bowl after BOWL_DELAY
@@ -181,6 +238,7 @@ func _physics_process(delta):
 			elif (bowlDelay > (BOWL_DELAY + POST_BOWL_DELAY)):
 				bowlState = 0;
 				bowlPower = 0;
+				bowlChargeState = 0;
 		else: 
 			bowlDelay = 0;
 		
