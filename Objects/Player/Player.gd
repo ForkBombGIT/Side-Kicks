@@ -110,8 +110,8 @@ func update_sliding(delta):
 # Bowl ball
 func bowl_bowling_ball():
 	if !(is_instance_valid(bowlingBall)):
-		# bowlState set to 3, represents ball has been rowled
-		bowlState = 3;
+		# bowlState set to 2, represents ball has been rolled
+		bowlState = 2;
 		# Instatiate BowlingBall
 		bowlingBall = bowlingBallScene.instance();
 		bowlingBall.position = position;
@@ -160,9 +160,8 @@ func _physics_process(delta):
 		if !(is_instance_valid(bowlingBall)) :
 			if ((Input.is_action_pressed("ui_ok_p%d" % id))):
 				bowlPower += delta;
-				bowlState = 1;
 			elif ((Input.is_action_just_released("ui_ok_p%d" % id))):
-				bowlState = 2;
+				bowlState = 1;
 		# Sliding action
 		if ((Input.is_action_just_pressed("ui_back_p%d" % id))):
 			slide();
@@ -172,14 +171,11 @@ func _physics_process(delta):
 			slideLength = 0;
 		
 		# Ball Rolling after delay
-		if (bowlState >= 2):
+		if (bowlState >= 1):
 			bowlDelay += delta;
-			# Skip BOWL_DELAY if bowl was charged
-			if (bowlPower >= BOWL_DELAY):
-				bowlDelay = BOWL_DELAY;
 			# Bowl after BOWL_DELAY
 			if ((bowlDelay >= BOWL_DELAY) and 
-				(bowlState != 3)):
+				(bowlState != 2)):
 					bowl_bowling_ball();
 			# Wait for POST_BOWL_DELAY to continue movement
 			elif (bowlDelay > (BOWL_DELAY + POST_BOWL_DELAY)):

@@ -42,16 +42,14 @@ func _physics_process(delta):
 				var pin_position = collider.position;
 				var direction = (pin_position - position).normalized();
 				collider.set_velocity(direction * velocity_before_collision.length() * 0.9);
-		var lostVelocity = collision.remainder.bounce(collision.normal);
 		velocity = velocity_before_collision.bounce(collision.normal);
-		move_and_slide(lostVelocity);
 
 func _on_Area2D_body_entered(body):
 	# Bowling Ball Collisions
 	if (body.is_in_group("Ball")):
 		var body_position = body.position;
 		var direction = (body_position - position).normalized();
-		velocity = -direction * body.velocity.length() * body.chargeState;
+		velocity = -direction * body.velocity.length() * (body.chargeState * 0.2);
 
 func _on_lifetimer_timeout():
 	queue_free();
