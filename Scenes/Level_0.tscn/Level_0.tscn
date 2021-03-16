@@ -5,6 +5,7 @@
 [ext_resource path="res://Scenes/Level_0.tscn/Level_0.gd" type="Script" id=3]
 
 [node name="Level_0" type="YSort"]
+scale = Vector2( 0.987474, 1.00143 )
 script = ExtResource( 3 )
 
 [node name="Walls" type="Node2D" parent="."]

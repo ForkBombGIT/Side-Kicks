@@ -36,9 +36,12 @@ func _physics_process(delta):
 	if slide_count:
 		var collision = get_slide_collision(slide_count - 1);
 		var collider = collision.collider;
+		#Pin to pin collision
 		if (collider.is_in_group("Pin")):
-			if !(hasCollided):
-				collider.set_velocity(collision.normal * velocity.length() * 0.99);
+			if !(collider.hasCollided):
+				var pin_position = collider.position;
+				var direction = (pin_position - position).normalized();
+				collider.set_velocity(direction * velocity_before_collision.length() * 0.9);
 		var lostVelocity = collision.remainder.bounce(collision.normal);
 		velocity = velocity_before_collision.bounce(collision.normal);
 		move_and_slide(lostVelocity);

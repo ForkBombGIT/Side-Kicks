@@ -11,9 +11,11 @@ const THROW_SPEEDS = [480,600,960,1440];
 # General player constants
 const BOWL_DELAY = 12 / 60.0;
 const POST_BOWL_DELAY = 10 / 60.0;
+const STUN_TIME = 2;
 # Player identification variables
 onready var bowlingBallScene = load("res://Objects/BowlingBall/BowlingBall.tscn");
 onready var sprite = get_node("AnimatedSprite");
+onready var stunTimer = get_node("StunTimer");
 var id;
 var color;
 # Player state variables
@@ -27,12 +29,20 @@ var sliding;
 var slideLength;
 var slideStartPosition;
 var bowlingBall;
+var stunned;
 
 func set_id(id):
 	self.id = id;
 	
 func set_color(color):
 	self.color = color;
+
+func bowling_ball_collision():
+	stunned = true;
+	
+	stunTimer.set_wait_time(STUN_TIME);
+	stunTimer.start();
+	stunTimer.connect("timeout", self, "_on_stuntimer_timeout")
 
 # Determine Axis vector, contains direction based on user input
 func get_axis():
@@ -113,6 +123,7 @@ func bowl_bowling_ball():
 		if (dir == Vector2.ZERO):
 			dir = direction["vector"]
 		bowlingBall.set_direction(dir);
+		bowlingBall.set_player_id(id);
 		get_parent().add_child(bowlingBall);
 
 # Cancels or starts sliding, and sets start position
@@ -120,7 +131,10 @@ func slide():
 	sliding = !sliding;
 	if (sliding):
 		slideStartPosition = position;
-
+		
+func _on_stuntimer_timeout():
+	stunned = false;
+	
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Initialize Velocity Vector
@@ -138,44 +152,45 @@ func _ready():
 	
 # Called at the beginning of each physics step
 func _physics_process(delta):
-	# Bowling action
-	if !(is_instance_valid(bowlingBall)) :
-		if ((Input.is_action_pressed("ui_ok_p%d" % id))):
-			bowlPower += delta;
-			bowlState = 1;
-		elif ((Input.is_action_just_released("ui_ok_p%d" % id))):
-			bowlState = 2;
-	# Sliding action
-	if ((Input.is_action_just_pressed("ui_back_p%d" % id))):
-		slide();
-	elif ((Input.is_action_pressed("ui_back_p%d" % id))):
-		slideLength += delta;
-	elif ((Input.is_action_just_released("ui_back_p%d" % id))):
-		slideLength = 0;
-	
-	# Ball Rolling after delay
-	if (bowlState >= 2):
-		bowlDelay += delta;
-		# Skip BOWL_DELAY if bowl was charged
-		if (bowlPower >= BOWL_DELAY):
-			bowlDelay = BOWL_DELAY;
-		# Bowl after BOWL_DELAY
-		if ((bowlDelay >= BOWL_DELAY) and 
-			(bowlState != 3)):
-				bowl_bowling_ball();
-		# Wait for POST_BOWL_DELAY to continue movement
-		elif (bowlDelay > (BOWL_DELAY + POST_BOWL_DELAY)):
-			bowlState = 0;
-			bowlPower = 0;
-	else: 
-		bowlDelay = 0;
-		
 	# Update Movement
 	update_direction(velocity);
 	update_sprite();
-	if (sliding):
-		update_sliding(delta)
-	else:
-		# Moving is only allowed when not bowling
-		if (bowlState == 0):
-			update_velocity(SPEED, get_axis(), delta);
+	if !(stunned):
+		# Bowling action
+		if !(is_instance_valid(bowlingBall)) :
+			if ((Input.is_action_pressed("ui_ok_p%d" % id))):
+				bowlPower += delta;
+				bowlState = 1;
+			elif ((Input.is_action_just_released("ui_ok_p%d" % id))):
+				bowlState = 2;
+		# Sliding action
+		if ((Input.is_action_just_pressed("ui_back_p%d" % id))):
+			slide();
+		elif ((Input.is_action_pressed("ui_back_p%d" % id))):
+			slideLength += delta;
+		elif ((Input.is_action_just_released("ui_back_p%d" % id))):
+			slideLength = 0;
+		
+		# Ball Rolling after delay
+		if (bowlState >= 2):
+			bowlDelay += delta;
+			# Skip BOWL_DELAY if bowl was charged
+			if (bowlPower >= BOWL_DELAY):
+				bowlDelay = BOWL_DELAY;
+			# Bowl after BOWL_DELAY
+			if ((bowlDelay >= BOWL_DELAY) and 
+				(bowlState != 3)):
+					bowl_bowling_ball();
+			# Wait for POST_BOWL_DELAY to continue movement
+			elif (bowlDelay > (BOWL_DELAY + POST_BOWL_DELAY)):
+				bowlState = 0;
+				bowlPower = 0;
+		else: 
+			bowlDelay = 0;
+		
+		if (sliding):
+			update_sliding(delta)
+		else:
+			# Moving is only allowed when not bowling
+			if (bowlState == 0):
+				update_velocity(SPEED, get_axis(), delta);

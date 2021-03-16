@@ -12,6 +12,10 @@ var direction;
 var velocity;
 var speed;
 var chargeState;
+var playerId;
+
+func set_player_id(id):
+	playerId = id;
 
 # Determine speed of bowling ball based on power
 func set_speed_from_power(p,speeds):
@@ -51,3 +55,11 @@ func _process(delta):
 		
 func _on_lifetimer_timeout():
 	queue_free();
+
+func _on_Area2D_body_entered(body):
+	if (body.is_in_group("Player")):
+		if (body.id != playerId):
+			body.bowling_ball_collision();
+			var body_position = body.position;
+			var direction = (body_position - position).normalized();
+			velocity = -direction * speed;

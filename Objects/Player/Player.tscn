@@ -9,31 +9,31 @@ region = Rect2( 0, 168, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=2]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 72, 18, 24 )
+region = Rect2( 0, 48, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=3]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 24, 18, 24 )
+region = Rect2( 0, 144, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=4]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 96, 18, 24 )
+region = Rect2( 0, 24, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=5]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 0, 18, 24 )
+region = Rect2( 0, 72, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=6]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 120, 18, 24 )
+region = Rect2( 0, 0, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=7]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 48, 18, 24 )
+region = Rect2( 0, 96, 18, 24 )
 
 [sub_resource type="AtlasTexture" id=8]
 atlas = ExtResource( 1 )
-region = Rect2( 0, 144, 18, 24 )
+region = Rect2( 0, 120, 18, 24 )
 
 [sub_resource type="SpriteFrames" id=9]
 animations = [ {
@@ -44,44 +44,46 @@ animations = [ {
 }, {
 "frames": [ SubResource( 2 ) ],
 "loop": true,
-"name": "idle_br",
+"name": "idle_r",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 3 ) ],
 "loop": true,
-"name": "idle_fr",
+"name": "idle_l",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 4 ) ],
 "loop": true,
-"name": "idle_b",
+"name": "idle_fr",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 5 ) ],
 "loop": true,
-"name": "idle_f",
+"name": "idle_br",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 6 ) ],
 "loop": true,
-"name": "idle_bl",
+"name": "idle_f",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 7 ) ],
 "loop": true,
-"name": "idle_r",
+"name": "idle_b",
 "speed": 5.0
 }, {
 "frames": [ SubResource( 8 ) ],
 "loop": true,
-"name": "idle_l",
+"name": "idle_bl",
 "speed": 5.0
 } ]
 
 [sub_resource type="RectangleShape2D" id=10]
 extents = Vector2( 12, 16 )
 
-[node name="Player" type="KinematicBody2D"]
+[node name="Player" type="KinematicBody2D" groups=[
+"Player",
+]]
 z_index = 2
 collision_mask = 5
 script = ExtResource( 2 )
@@ -96,3 +98,5 @@ animation = "idle_br"
 position = Vector2( 0, 8 )
 z_index = 2
 shape = SubResource( 10 )
+
+[node name="StunTimer" type="Timer" parent="."]
