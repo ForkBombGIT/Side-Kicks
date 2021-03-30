@@ -13,13 +13,13 @@ var colorSpawnTime = {};
 var spawnRanges = [ # [LevelId] 0 - x
 	[ # [Placement Position Index] 0 - 3
 		[ # [X1,X2 - X1],[Y]
-			[210,236],[64]
+			[210,236],[72]
 		],
 		[ # [X1,X2 - X1],[Y]
-			[210,236],[398]
+			[210,236],[408]
 		],
 		[ # [X],[Y1,Y2 - Y1]
-			[70],[120,236]
+			[52],[120,236]
 		],
 		[ # [X],[Y1,Y2 - Y1]
 			[590],[120,236]
@@ -30,8 +30,8 @@ var spawnRanges = [ # [LevelId] 0 - x
 func set_level_id(id):
 	levelId = id;
 	
-func set_colors(colors):
-	self.colors = colors;
+func set_colors(c):
+	self.colors = c;
 
 # Generates random position for pin to spawn at
 func generate_pin_position(generationAttempt):

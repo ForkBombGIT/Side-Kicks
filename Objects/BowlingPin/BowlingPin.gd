@@ -8,9 +8,11 @@ var velocity;
 var hasCollided;
 var color;
 
+# Set color that pin belongs to
 func set_color(color):
 	self.color = color;
 
+# Set velocity of pin, typically on collision
 func set_velocity(velocity):
 	self.velocity = velocity;
 
@@ -41,7 +43,10 @@ func _physics_process(delta):
 			if !(collider.hasCollided):
 				var pin_position = collider.position;
 				var direction = (pin_position - position).normalized();
-				collider.set_velocity(direction * velocity_before_collision.length() * 0.9);
+				var collisionVelocity = direction * velocity_before_collision.length() * 0.8;
+				if (collisionVelocity.length() < 200):
+					collisionVelocity = Vector2.ZERO;
+				collider.set_velocity(collisionVelocity);
 		velocity = velocity_before_collision.bounce(collision.normal);
 
 func _on_Area2D_body_entered(body):
@@ -49,7 +54,7 @@ func _on_Area2D_body_entered(body):
 	if (body.is_in_group("Ball")):
 		var body_position = body.position;
 		var direction = (body_position - position).normalized();
-		velocity = -direction * body.velocity.length() * (body.chargeState * 0.2);
+		velocity = -direction * body.velocity.length() * (body.chargeState * 0.5);
 
 func _on_lifetimer_timeout():
 	queue_free();

@@ -1,7 +1,10 @@
 [gd_scene load_steps=13 format=2]
 
-[ext_resource path="res://Assets/Sprites/char_rubus_(18x24).png" type="Texture" id=1]
+[ext_resource path="res://Assets/Sprites/Characters/char_rubus_(18x24).png" type="Texture" id=1]
 [ext_resource path="res://Objects/Player/Player.gd" type="Script" id=2]
+
+
+
 
 [sub_resource type="AtlasTexture" id=1]
 atlas = ExtResource( 1 )

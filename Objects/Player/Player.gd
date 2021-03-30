@@ -9,7 +9,7 @@ const LONG_SLIDE_DISTANCE = 120;
 const LONG_SLIDE_LENGTH = 10 / 60.0;
 const THROW_SPEEDS = [480,600,960,1440];
 # Length of charge states, in seconds
-const CHARGE_STAGES = [30,60,90];
+const CHARGE_STAGES = [60,120,180];
 # General player constants
 const BOWL_DELAY = 12 / 60.0;
 const POST_BOWL_DELAY = 10 / 60.0;
@@ -127,12 +127,16 @@ func update_sliding(delta):
 	var distance = SHORT_SLIDE_DISTANCE;
 	if (slideLength > LONG_SLIDE_LENGTH):
 		distance = LONG_SLIDE_DISTANCE;
+		$"AnimatedSprite".modulate = Color(0,0,0.5);
+	else:
+		$"AnimatedSprite".modulate = Color(0,0,0.75);
 	# Update velocity based on direction of slide
 	update_velocity(SLIDE_SPEED, direction["vector"], delta);
 	# Stop sliding once maximum distance is reached
 	if (slideStartPosition.distance_to(position) > distance):
 		sliding = false;
 		slideLength = 0;
+		$"AnimatedSprite".modulate = Color(1,1,1);
 
 # Change player color based on charge state
 func update_charge_color():
@@ -184,7 +188,7 @@ func _ready():
 	# How long player holds slide button
 	slideLength = 0;
 	# Throwing playstyle
-	throwStyle = 1;
+	throwStyle = 0;
 	# Delay before rolling ball
 	bowlDelay = 0;
 	bowlState = 0;
@@ -229,6 +233,10 @@ func _physics_process(delta):
 		
 		# Bowl ball after delay
 		if (bowlState >= 1):
+			if (bowlState == 1):
+				$"AnimatedSprite".modulate = Color(0.58,0.48,0.71);
+			else:
+				$"AnimatedSprite".modulate = Color(0.5,0,0.5);
 			bowlDelay += delta;
 			# Bowl after BOWL_DELAY
 			if ((bowlDelay >= BOWL_DELAY) and 
@@ -236,6 +244,7 @@ func _physics_process(delta):
 					bowl_bowling_ball();
 			# Wait for POST_BOWL_DELAY to continue movement
 			elif (bowlDelay > (BOWL_DELAY + POST_BOWL_DELAY)):
+				$"AnimatedSprite".modulate = Color(1,1,1);
 				bowlState = 0;
 				bowlPower = 0;
 				bowlChargeState = 0;
